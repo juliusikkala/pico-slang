@@ -1,5 +1,3 @@
-// Compile with:
-// slangc -target host-object-code -emit-cpu-via-llvm hello_world.slang -o hello_world.o -llvm-target-triple thumb-v8-eabi -llvm-cpu cortex-m33 -llvm-features +dsp -Xllvm... -function-sections -data-sections -float-abi=soft -X. 
 import pico;
 
 export __extern_cpp int main()
@@ -11,14 +9,18 @@ export __extern_cpp int main()
         return -1;
     }
 
+    float4 v = float4(1.0, 2.0, 3.0, 4.0);
+
     for (;;)
     {
+        printf("%f, %f, %f, %f\n", v.x, v.y, v.z, v.w);
         printf("ON\n");
         pico.cyw43_arch_gpio_put(pico.CYW43_WL_GPIO_LED_PIN, true);
-        pico.sleep_ms(500);
+        pico.sleep_ms(750);
         printf("OFF\n");
         pico.cyw43_arch_gpio_put(pico.CYW43_WL_GPIO_LED_PIN, false);
-        pico.sleep_ms(500);
+        pico.sleep_ms(250);
+        v = cos(v);
     }
     return 0;
 }
