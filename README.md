@@ -37,6 +37,13 @@ This is currently specifically using the Cortex M33 CPU, not the Hazard3 RISC-V
 CPU on the device. I'm curious about the latter, but haven't bothered with the
 toolchain setup yet.
 
+## Hardware
+
+* Raspberry Pi Pico 2 W
+* [Adafruit 2.0" 240x320 IPS TFT LCD](https://www.adafruit.com/product/4311)
+    - Display SPI pins connected to Pico's SPI0
+    - D/C in GPIO 21, RESET in GPIO 20
+
 ## How's it work?
 
 It's actually pretty straightforward. `pico.slang` forward declares all
