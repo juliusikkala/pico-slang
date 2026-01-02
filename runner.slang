@@ -8,7 +8,8 @@ ConstantBuffer<ShadertoyConstants> shadertoyConstants;
 #define iTime shadertoyConstants.time
 
 //#include "shaders/seascape_by_tdm.glsl"
-#include "shaders/protean_clouds_by_nimitz.glsl"
+//#include "shaders/protean_clouds_by_nimitz.glsl"
+#include "shaders/a_dead_planet_of_silicon_dreams.glsl"
 
 RWStructuredBuffer<uint16_t> tileData;
 

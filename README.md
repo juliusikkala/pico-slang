@@ -1,7 +1,19 @@
 Slang on Raspberry Pico 2 W
 ===========================
 
-This is a proof-of-concept of compiling Slang code to run on a microcontroller.
+This is a proof-of-concept of compiling [Slang](https://github.com/shader-slang/slang)
+code to run on a microcontroller. It is able to run Shadertoy shaders on the
+microcontroller! Although, performance is measured in minutes per frame.
+
+**NOTE** that none of the code in the `shaders` folder is mine; they're just
+example shaders from Shadertoy that work with this program! Their respective
+licenses are found at the beginning of the shader files.
+
+| ![photo of a small LCD showing an alien landscape](images/a_dead_planet_of_silicon_dreams.jpg) |
+| --- |
+| The program running ["A Dead Planet of Silicon Dreams"](https://www.shadertoy.com/view/WfGfzK) by mrange |
+
+
 As of writing, this doesn't yet work on the upstream Slang compiler; it requires
 PRs [9491](https://github.com/shader-slang/slang/pull/9491),
 [9492](https://github.com/shader-slang/slang/pull/9492), and
