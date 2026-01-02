@@ -1,4 +1,5 @@
 import pico;
+import st7789;
 
 struct PointerTest
 {
@@ -14,6 +15,8 @@ export __extern_cpp int main()
         printf("Failed to init Wi-Fi module\n");
         return -1;
     }
+
+    st7789.init();
 
     float4 v = float4(1.0, 2.0, 3.0, 4.0);
 
