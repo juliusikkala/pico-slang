@@ -1,9 +1,14 @@
 // Auto-generated bindings by slang-bindgen.py, from headers:
-//   /home/julius/Ohjelmat/pico-sdk/src/rp2_common/pico_stdio/include/pico/stdio.h
-//   /home/julius/Ohjelmat/pico-sdk/src/common/pico_time/include/pico/time.h
-//   /home/julius/Ohjelmat/pico-sdk/src/host/hardware_gpio/include/hardware/gpio.h
-//   /home/julius/Ohjelmat/pico-sdk/src/boards/include/boards/pico2_w.h
-//   /home/julius/Ohjelmat/pico-sdk/src/rp2_common/pico_cyw43_arch/include/pico/cyw43_arch.h
+//   helper.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/host/hardware_gpio/include/hardware/gpio.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/rp2_common/pico_stdio/include/pico/stdio.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/rp2_common/pico_cyw43_arch/include/pico/cyw43_arch.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/rp2_common/hardware_spi/include/hardware/spi.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/rp2350/hardware_regs/include/hardware/regs/spi.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/rp2350/hardware_structs/include/hardware/structs/spi.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/rp2350/hardware_regs/include/hardware/regs/addressmap.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/common/pico_time/include/pico/time.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/boards/include/boards/pico2_w.h
 namespace pico {
     public static let PICO_RP2350A = 1;
     public static let PICO_DEFAULT_UART = 0;
@@ -34,12 +39,153 @@ namespace pico {
     public static let CYW43_DEFAULT_PIN_WL_HOST_WAKE = 24u;
     public static let CYW43_DEFAULT_PIN_WL_CLOCK = 29u;
     public static let CYW43_DEFAULT_PIN_WL_CS = 25u;
+    public static let SPI_SSPCR0_SCR_ACCESS = "RW";
+    public static let SPI_SSPCR0_SPH_ACCESS = "RW";
+    public static let SPI_SSPCR0_SPO_ACCESS = "RW";
+    public static let SPI_SSPCR0_FRF_ACCESS = "RW";
+    public static let SPI_SSPCR0_DSS_ACCESS = "RW";
+    public static let SPI_SSPCR1_SOD_ACCESS = "RW";
+    public static let SPI_SSPCR1_MS_ACCESS = "RW";
+    public static let SPI_SSPCR1_SSE_ACCESS = "RW";
+    public static let SPI_SSPCR1_LBM_ACCESS = "RW";
+    public static let SPI_SSPDR_RESET = "-";
+    public static let SPI_SSPDR_DATA_RESET = "-";
+    public static let SPI_SSPDR_DATA_ACCESS = "RWF";
+    public static let SPI_SSPSR_BSY_ACCESS = "RO";
+    public static let SPI_SSPSR_RFF_ACCESS = "RO";
+    public static let SPI_SSPSR_RNE_ACCESS = "RO";
+    public static let SPI_SSPSR_TNF_ACCESS = "RO";
+    public static let SPI_SSPSR_TFE_ACCESS = "RO";
+    public static let SPI_SSPCPSR_CPSDVSR_ACCESS = "RW";
+    public static let SPI_SSPIMSC_TXIM_ACCESS = "RW";
+    public static let SPI_SSPIMSC_RXIM_ACCESS = "RW";
+    public static let SPI_SSPIMSC_RTIM_ACCESS = "RW";
+    public static let SPI_SSPIMSC_RORIM_ACCESS = "RW";
+    public static let SPI_SSPRIS_TXRIS_ACCESS = "RO";
+    public static let SPI_SSPRIS_RXRIS_ACCESS = "RO";
+    public static let SPI_SSPRIS_RTRIS_ACCESS = "RO";
+    public static let SPI_SSPRIS_RORRIS_ACCESS = "RO";
+    public static let SPI_SSPMIS_TXMIS_ACCESS = "RO";
+    public static let SPI_SSPMIS_RXMIS_ACCESS = "RO";
+    public static let SPI_SSPMIS_RTMIS_ACCESS = "RO";
+    public static let SPI_SSPMIS_RORMIS_ACCESS = "RO";
+    public static let SPI_SSPICR_RTIC_ACCESS = "WC";
+    public static let SPI_SSPICR_RORIC_ACCESS = "WC";
+    public static let SPI_SSPDMACR_TXDMAE_ACCESS = "RW";
+    public static let SPI_SSPDMACR_RXDMAE_ACCESS = "RW";
+    public static let SPI_SSPPERIPHID0_PARTNUMBER0_ACCESS = "RO";
+    public static let SPI_SSPPERIPHID1_DESIGNER0_ACCESS = "RO";
+    public static let SPI_SSPPERIPHID1_PARTNUMBER1_ACCESS = "RO";
+    public static let SPI_SSPPERIPHID2_REVISION_ACCESS = "RO";
+    public static let SPI_SSPPERIPHID2_DESIGNER1_ACCESS = "RO";
+    public static let SPI_SSPPERIPHID3_CONFIGURATION_ACCESS = "RO";
+    public static let SPI_SSPPCELLID0_SSPPCELLID0_ACCESS = "RO";
+    public static let SPI_SSPPCELLID1_SSPPCELLID1_ACCESS = "RO";
+    public static let SPI_SSPPCELLID2_SSPPCELLID2_ACCESS = "RO";
+    public static let SPI_SSPPCELLID3_SSPPCELLID3_ACCESS = "RO";
+    public struct spi_hw_t {
+        public uint cr0;
+        public uint cr1;
+        public uint dr;
+        public const uint sr;
+        public uint cpsr;
+        public uint imsc;
+        public const uint ris;
+        public const uint mis;
+        public uint icr;
+        public uint dmacr;
+    };
+    public static let PARAM_ASSERTIONS_ENABLED_HARDWARE_SPI = 0;
+    public typealias spi_inst_t = spi_inst;
+    public static const uint SPI_CPHA_0 = 0;
+    public static const uint SPI_CPHA_1 = 1;
+    public typealias spi_cpha_t = uint;
+    public static const uint SPI_CPOL_0 = 0;
+    public static const uint SPI_CPOL_1 = 1;
+    public typealias spi_cpol_t = uint;
+    public static const uint SPI_LSB_FIRST = 0;
+    public static const uint SPI_MSB_FIRST = 1;
+    public typealias spi_order_t = uint;
+    public __extern_cpp uint spi_init(Ptr<spi_inst_t> spi, uint baudrate);
+    public __extern_cpp void spi_deinit(Ptr<spi_inst_t> spi);
+    public __extern_cpp uint spi_set_baudrate(Ptr<spi_inst_t> spi, uint baudrate);
+    public __extern_cpp uint spi_get_baudrate(Ptr<spi_inst_t> spi);
+    public __extern_cpp uint spi_get_index(Ptr<spi_inst_t> spi);
+    public __extern_cpp Ptr<spi_hw_t> spi_get_hw(Ptr<spi_inst_t> spi);
+    public __extern_cpp Ptr<spi_hw_t> spi_get_const_hw(Ptr<spi_inst_t> spi);
+    public __extern_cpp void spi_set_format(Ptr<spi_inst_t> spi, uint data_bits, spi_cpol_t cpol, spi_cpha_t cpha, spi_order_t order);
+    public __extern_cpp void spi_set_slave(Ptr<spi_inst_t> spi, bool slave);
+    public __extern_cpp bool spi_is_writable(Ptr<spi_inst_t> spi);
+    public __extern_cpp bool spi_is_readable(Ptr<spi_inst_t> spi);
+    public __extern_cpp bool spi_is_busy(Ptr<spi_inst_t> spi);
+    public __extern_cpp int spi_write_read_blocking(Ptr<spi_inst_t> spi, Ptr<uint8_t> src, Ptr<uint8_t> dst, uint len);
+    public __extern_cpp int spi_write_blocking(Ptr<spi_inst_t> spi, Ptr<uint8_t> src, uint len);
+    public __extern_cpp int spi_read_blocking(Ptr<spi_inst_t> spi, uint8_t repeated_tx_data, Ptr<uint8_t> dst, uint len);
+    public __extern_cpp int spi_write16_read16_blocking(Ptr<spi_inst_t> spi, Ptr<uint16_t> src, Ptr<uint16_t> dst, uint len);
+    public __extern_cpp int spi_write16_blocking(Ptr<spi_inst_t> spi, Ptr<uint16_t> src, uint len);
+    public __extern_cpp int spi_read16_blocking(Ptr<spi_inst_t> spi, uint16_t repeated_tx_data, Ptr<uint16_t> dst, uint len);
+    public __extern_cpp uint spi_get_dreq(Ptr<spi_inst_t> spi, bool is_tx);
+    public static const Ptr<spi_inst_t> SPI0 = reinterpret<Ptr<spi_inst_t>>(0x40080000u);
+    public static const Ptr<spi_inst_t> SPI1 = reinterpret<Ptr<spi_inst_t>>(0x40088000u);
+    public static const uint GPIO_FUNC_XIP = 0;
+    public static const uint GPIO_FUNC_SPI = 1;
+    public static const uint GPIO_FUNC_UART = 2;
+    public static const uint GPIO_FUNC_I2C = 3;
+    public static const uint GPIO_FUNC_PWM = 4;
+    public static const uint GPIO_FUNC_SIO = 5;
+    public static const uint GPIO_FUNC_PIO0 = 6;
+    public static const uint GPIO_FUNC_PIO1 = 7;
+    public static const uint GPIO_FUNC_GPCK = 8;
+    public static const uint GPIO_FUNC_USB = 9;
+    public static const uint GPIO_FUNC_NULL = 15;
+    public static const uint GPIO_SLEW_RATE_SLOW = 0;
+    public static const uint GPIO_SLEW_RATE_FAST = 1;
+    public static let GPIO_OUT = 1;
+    public static let GPIO_IN = 0;
+    public static const uint GPIO_DRIVE_STRENGTH_2MA = 0;
+    public static const uint GPIO_DRIVE_STRENGTH_4MA = 1;
+    public static const uint GPIO_DRIVE_STRENGTH_8MA = 2;
+    public static const uint GPIO_DRIVE_STRENGTH_12MA = 3;
+    public __extern_cpp void gpio_set_function(uint gpio, uint fn);
+    public __extern_cpp uint gpio_get_function(uint gpio);
+    public __extern_cpp void gpio_pull_up(uint gpio);
+    public __extern_cpp void gpio_pull_down(uint gpio);
+    public __extern_cpp void gpio_disable_pulls(uint gpio);
+    public __extern_cpp void gpio_set_pulls(uint gpio, bool up, bool down);
+    public __extern_cpp void gpio_set_irqover(uint gpio, uint value);
+    public __extern_cpp void gpio_set_outover(uint gpio, uint value);
+    public __extern_cpp void gpio_set_inover(uint gpio, uint value);
+    public __extern_cpp void gpio_set_oeover(uint gpio, uint value);
+    public __extern_cpp void gpio_set_input_enabled(uint gpio, bool enable);
+    public __extern_cpp void gpio_set_input_hysteresis_enabled(uint gpio, bool enabled);
+    public __extern_cpp bool gpio_is_input_hysteresis_enabled(uint gpio);
+    public __extern_cpp void gpio_set_slew_rate(uint gpio, uint slew);
+    public __extern_cpp uint gpio_get_slew_rate(uint gpio);
+    public __extern_cpp void gpio_set_drive_strength(uint gpio, uint drive);
+    public __extern_cpp uint gpio_get_drive_strength(uint gpio);
+    public __extern_cpp void gpio_init(uint gpio);
+    public __extern_cpp void gpio_init_mask(uint gpio_mask);
+    public __extern_cpp bool gpio_get(uint gpio);
+    public __extern_cpp uint gpio_get_all();
+    public __extern_cpp void gpio_set_mask(uint mask);
+    public __extern_cpp void gpio_clr_mask(uint mask);
+    public __extern_cpp void gpio_xor_mask(uint mask);
+    public __extern_cpp void gpio_put_masked(uint mask, uint value);
+    public __extern_cpp void gpio_put_all(uint value);
+    public __extern_cpp void gpio_put(uint gpio, int value);
+    public __extern_cpp void gpio_set_dir_out_masked(uint mask);
+    public __extern_cpp void gpio_set_dir_in_masked(uint mask);
+    public __extern_cpp void gpio_set_dir_masked(uint mask, uint value);
+    public __extern_cpp void gpio_set_dir_all_bits(uint value);
+    public static let PICO_DEBUG_PIN_BASE = 19u;
+    public __extern_cpp void gpio_set_dir(uint gpio, bool out);
     public static let PICO_STDOUT_MUTEX = 1;
     public static let PICO_STDIO_ENABLE_CRLF_SUPPORT = 1;
     public static let PICO_STDIO_DEFAULT_CRLF = 1;
     public static let PICO_STDIO_STACK_BUFFER_SIZE = 128;
     public static let PICO_STDIO_DEADLOCK_TIMEOUT_MS = 1000;
     public static let PICO_STDIO_SHORT_CIRCUIT_CLIB_FUNCS = 1;
+    public __extern_cpp void gpio_debug_pins_init();
     public typealias stdio_driver_t = stdio_driver;
     public __extern_cpp bool stdio_init_all();
     public __extern_cpp bool stdio_deinit_all();
@@ -123,65 +269,6 @@ namespace pico {
     public __extern_cpp bool add_repeating_timer_us(int64_t delay_us, repeating_timer_callback_t callback, Ptr<void> user_data, Ptr<repeating_timer_t> out);
     public __extern_cpp bool add_repeating_timer_ms(int delay_ms, repeating_timer_callback_t callback, Ptr<void> user_data, Ptr<repeating_timer_t> out);
     public __extern_cpp bool cancel_repeating_timer(Ptr<repeating_timer_t> timer);
-    public enum gpio_function: uint {
-        GPIO_FUNC_XIP = 0,
-        GPIO_FUNC_SPI = 1,
-        GPIO_FUNC_UART = 2,
-        GPIO_FUNC_I2C = 3,
-        GPIO_FUNC_PWM = 4,
-        GPIO_FUNC_SIO = 5,
-        GPIO_FUNC_PIO0 = 6,
-        GPIO_FUNC_PIO1 = 7,
-        GPIO_FUNC_GPCK = 8,
-        GPIO_FUNC_USB = 9,
-        GPIO_FUNC_NULL = 15,
-    };
-    public enum gpio_slew_rate: uint {
-        GPIO_SLEW_RATE_SLOW = 0,
-        GPIO_SLEW_RATE_FAST = 1,
-    };
-    public static let GPIO_OUT = 1;
-    public static let GPIO_IN = 0;
-    public enum gpio_drive_strength: uint {
-        GPIO_DRIVE_STRENGTH_2MA = 0,
-        GPIO_DRIVE_STRENGTH_4MA = 1,
-        GPIO_DRIVE_STRENGTH_8MA = 2,
-        GPIO_DRIVE_STRENGTH_12MA = 3,
-    };
-    public __extern_cpp void gpio_set_function(uint gpio, gpio_function fn);
-    public __extern_cpp gpio_function gpio_get_function(uint gpio);
-    public __extern_cpp void gpio_pull_up(uint gpio);
-    public __extern_cpp void gpio_pull_down(uint gpio);
-    public __extern_cpp void gpio_disable_pulls(uint gpio);
-    public __extern_cpp void gpio_set_pulls(uint gpio, bool up, bool down);
-    public __extern_cpp void gpio_set_irqover(uint gpio, uint value);
-    public __extern_cpp void gpio_set_outover(uint gpio, uint value);
-    public __extern_cpp void gpio_set_inover(uint gpio, uint value);
-    public __extern_cpp void gpio_set_oeover(uint gpio, uint value);
-    public __extern_cpp void gpio_set_input_enabled(uint gpio, bool enable);
-    public __extern_cpp void gpio_set_input_hysteresis_enabled(uint gpio, bool enabled);
-    public __extern_cpp bool gpio_is_input_hysteresis_enabled(uint gpio);
-    public __extern_cpp void gpio_set_slew_rate(uint gpio, gpio_slew_rate slew);
-    public __extern_cpp gpio_slew_rate gpio_get_slew_rate(uint gpio);
-    public __extern_cpp void gpio_set_drive_strength(uint gpio, gpio_drive_strength drive);
-    public __extern_cpp gpio_drive_strength gpio_get_drive_strength(uint gpio);
-    public __extern_cpp void gpio_init(uint gpio);
-    public __extern_cpp void gpio_init_mask(uint gpio_mask);
-    public __extern_cpp bool gpio_get(uint gpio);
-    public __extern_cpp uint gpio_get_all();
-    public __extern_cpp void gpio_set_mask(uint mask);
-    public __extern_cpp void gpio_clr_mask(uint mask);
-    public __extern_cpp void gpio_xor_mask(uint mask);
-    public __extern_cpp void gpio_put_masked(uint mask, uint value);
-    public __extern_cpp void gpio_put_all(uint value);
-    public __extern_cpp void gpio_put(uint gpio, int value);
-    public __extern_cpp void gpio_set_dir_out_masked(uint mask);
-    public __extern_cpp void gpio_set_dir_in_masked(uint mask);
-    public __extern_cpp void gpio_set_dir_masked(uint mask, uint value);
-    public __extern_cpp void gpio_set_dir_all_bits(uint value);
-    public static let PICO_DEBUG_PIN_BASE = 19u;
-    public __extern_cpp void gpio_set_dir(uint gpio, bool out);
-    public __extern_cpp void gpio_debug_pins_init();
     public static let PARAM_ASSERTIONS_ENABLED_PICO_CYW43_ARCH = 0;
     public static let PICO_CYW43_ARCH_DEBUG_ENABLED = 0;
     public __extern_cpp int cyw43_arch_init();
@@ -211,5 +298,6 @@ namespace pico {
     public struct __va_list;
     public struct alarm_pool;
     public struct async_context;
+    public struct spi_inst;
     public struct stdio_driver;
 }
