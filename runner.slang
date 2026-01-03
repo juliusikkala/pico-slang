@@ -7,14 +7,10 @@ ConstantBuffer<ShadertoyConstants> shadertoyConstants;
 #define iMouse shadertoyConstants.mouse
 #define iTime shadertoyConstants.time
 
-//#include "shaders/seascape_by_tdm.glsl"
-//#include "shaders/protean_clouds_by_nimitz.glsl"
-#include "shaders/a_dead_planet_of_silicon_dreams.glsl"
-//#include "shaders/starry_planes_by_mrange.glsl"
-//#include "shaders/lets_self_reflect_by_mrange.glsl"
-//#include "shaders/auroras_by_nimitz.glsl"
-//#include "shaders/cable_nest_by_mrange.glsl"
-//#include "shaders/synthwave_canyon_by_mrange.glsl"
+#ifndef PICOTOY_RUNNER_INCLUDE
+#define PICOTOY_RUNNER_INCLUDE "shaders/a_dead_planet_of_silicon_dreams.glsl"
+#endif
+#include PICOTOY_RUNNER_INCLUDE
 
 RWStructuredBuffer<uint16_t> tileData;
 
@@ -39,7 +35,7 @@ uint16_t toRGB565(float3 color, float d)
 }
 
 [numthreads(DISPATCH_TILE_SIZE,DISPATCH_TILE_SIZE,1)]
-void runnerMain(
+void PICOTOY_RUNNER_MAIN(
     uint3 dispatchThreadID : SV_DispatchThreadID,
     uint3 groupThreadID : SV_GroupThreadID)
 {
