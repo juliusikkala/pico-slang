@@ -1,6 +1,9 @@
 // Auto-generated bindings by slang-bindgen.py, from headers:
 //   helper.h
 //   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/host/hardware_gpio/include/hardware/gpio.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/host/pico_multicore/include/pico/multicore.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/common/pico_sync/include/pico/mutex.h
+//   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/common/pico_sync/include/pico/lock_core.h
 //   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/rp2_common/pico_stdio/include/pico/stdio.h
 //   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/rp2_common/pico_cyw43_arch/include/pico/cyw43_arch.h
 //   /home/julius/Ohjelmointi/raspberry-pico/pico-sdk/src/rp2_common/hardware_spi/include/hardware/spi.h
@@ -179,32 +182,25 @@ namespace pico {
     public __extern_cpp void gpio_set_dir_all_bits(uint value);
     public static let PICO_DEBUG_PIN_BASE = 19u;
     public __extern_cpp void gpio_set_dir(uint gpio, bool out);
-    public static let PICO_STDOUT_MUTEX = 1;
-    public static let PICO_STDIO_ENABLE_CRLF_SUPPORT = 1;
-    public static let PICO_STDIO_DEFAULT_CRLF = 1;
-    public static let PICO_STDIO_STACK_BUFFER_SIZE = 128;
-    public static let PICO_STDIO_DEADLOCK_TIMEOUT_MS = 1000;
-    public static let PICO_STDIO_SHORT_CIRCUIT_CLIB_FUNCS = 1;
     public __extern_cpp void gpio_debug_pins_init();
-    public typealias stdio_driver_t = stdio_driver;
-    public __extern_cpp bool stdio_init_all();
-    public __extern_cpp bool stdio_deinit_all();
-    public __extern_cpp void stdio_flush();
-    public __extern_cpp int stdio_getchar_timeout_us(uint timeout_us);
-    public __extern_cpp int getchar_timeout_us(uint timeout_us);
-    public __extern_cpp void stdio_set_driver_enabled(Ptr<stdio_driver_t> driver, bool enabled);
-    public __extern_cpp void stdio_filter_driver(Ptr<stdio_driver_t> driver);
-    public __extern_cpp void stdio_set_translate_crlf(Ptr<stdio_driver_t> driver, bool translate);
-    public __extern_cpp int stdio_putchar_raw(int c);
-    public __extern_cpp int putchar_raw(int c);
-    public __extern_cpp int stdio_puts_raw(Ptr<uint8_t> s);
-    public __extern_cpp int puts_raw(Ptr<uint8_t> s);
-    public __extern_cpp void stdio_set_chars_available_callback(Ptr<void> fn, Ptr<void> param);
-    public __extern_cpp int stdio_get_until(Ptr<uint8_t> buf, int len, uint64_t until);
-    public __extern_cpp int stdio_put_string(Ptr<uint8_t> s, int len, bool newline, bool cr_translation);
-    public __extern_cpp int stdio_getchar();
-    public __extern_cpp int stdio_putchar(int );
-    public __extern_cpp int stdio_puts(Ptr<uint8_t> s);
+    public __extern_cpp void multicore_reset_core1();
+    public __extern_cpp void multicore_launch_core1(Ptr<void> entry);
+    public __extern_cpp void multicore_launch_core1_with_stack(Ptr<void> entry, Ptr<uint> stack_bottom, uint stack_size_bytes);
+    public __extern_cpp void multicore_launch_core1_raw(Ptr<void> entry, Ptr<uint> sp, uint vector_table);
+    public __extern_cpp bool multicore_fifo_rvalid();
+    public __extern_cpp bool multicore_fifo_wready();
+    public __extern_cpp void multicore_fifo_push_blocking(uint data);
+    public __extern_cpp bool multicore_fifo_push_timeout_us(uint data, uint64_t timeout_us);
+    public __extern_cpp uint multicore_fifo_pop_blocking();
+    public __extern_cpp bool multicore_fifo_pop_timeout_us(uint64_t timeout_us, Ptr<uint> out);
+    public __extern_cpp void multicore_fifo_drain();
+    public __extern_cpp void multicore_fifo_clear_irq();
+    public __extern_cpp uint multicore_fifo_get_status();
+    public __extern_cpp void multicore_lockout_victim_init();
+    public __extern_cpp bool multicore_lockout_start_timeout_us(uint64_t timeout_us);
+    public __extern_cpp void multicore_lockout_start_blocking();
+    public __extern_cpp bool multicore_lockout_end_timeout_us(uint64_t timeout_us);
+    public __extern_cpp void multicore_lockout_end_blocking();
     public static let PARAM_ASSERTIONS_ENABLED_PICO_TIME = 0;
     public static let PICO_TIME_SLEEP_OVERHEAD_ADJUST_US = 6;
     public __extern_cpp uint64_t get_absolute_time();
@@ -269,6 +265,65 @@ namespace pico {
     public __extern_cpp bool add_repeating_timer_us(int64_t delay_us, repeating_timer_callback_t callback, Ptr<void> user_data, Ptr<repeating_timer_t> out);
     public __extern_cpp bool add_repeating_timer_ms(int delay_ms, repeating_timer_callback_t callback, Ptr<void> user_data, Ptr<repeating_timer_t> out);
     public __extern_cpp bool cancel_repeating_timer(Ptr<repeating_timer_t> timer);
+    public static let PARAM_ASSERTIONS_ENABLED_LOCK_CORE = 0;
+    public struct lock_core {
+        public Ptr<uint8_t> spin_lock;
+    };
+    public typealias lock_core_t = lock_core;
+    public __extern_cpp void lock_init(Ptr<lock_core_t> core, uint lock_num);
+    public struct recursive_mutex_t {
+        public lock_core_t core;
+        public int8_t owner;
+        public uint8_t enter_count;
+    };
+    public struct mutex {
+        public lock_core_t core;
+        public int8_t owner;
+    };
+    public typealias mutex_t = mutex;
+    public __extern_cpp void mutex_init(Ptr<mutex_t> mtx);
+    public __extern_cpp void recursive_mutex_init(Ptr<recursive_mutex_t> mtx);
+    public __extern_cpp void mutex_enter_blocking(Ptr<mutex_t> mtx);
+    public __extern_cpp void recursive_mutex_enter_blocking(Ptr<recursive_mutex_t> mtx);
+    public __extern_cpp bool mutex_try_enter(Ptr<mutex_t> mtx, Ptr<uint> owner_out);
+    public __extern_cpp bool mutex_try_enter_block_until(Ptr<mutex_t> mtx, uint64_t until);
+    public __extern_cpp bool recursive_mutex_try_enter(Ptr<recursive_mutex_t> mtx, Ptr<uint> owner_out);
+    public __extern_cpp bool mutex_enter_timeout_ms(Ptr<mutex_t> mtx, uint timeout_ms);
+    public __extern_cpp bool recursive_mutex_enter_timeout_ms(Ptr<recursive_mutex_t> mtx, uint timeout_ms);
+    public __extern_cpp bool mutex_enter_timeout_us(Ptr<mutex_t> mtx, uint timeout_us);
+    public __extern_cpp bool recursive_mutex_enter_timeout_us(Ptr<recursive_mutex_t> mtx, uint timeout_us);
+    public __extern_cpp bool mutex_enter_block_until(Ptr<mutex_t> mtx, uint64_t until);
+    public __extern_cpp bool recursive_mutex_enter_block_until(Ptr<recursive_mutex_t> mtx, uint64_t until);
+    public __extern_cpp void mutex_exit(Ptr<mutex_t> mtx);
+    public __extern_cpp void recursive_mutex_exit(Ptr<recursive_mutex_t> mtx);
+    public __extern_cpp bool mutex_is_initialized(Ptr<mutex_t> mtx);
+    public __extern_cpp bool recursive_mutex_is_initialized(Ptr<recursive_mutex_t> mtx);
+    public static let PICO_STDOUT_MUTEX = 1;
+    public static let PICO_STDIO_ENABLE_CRLF_SUPPORT = 1;
+    public static let PICO_STDIO_DEFAULT_CRLF = 1;
+    public static let PICO_STDIO_STACK_BUFFER_SIZE = 128;
+    public static let PICO_STDIO_DEADLOCK_TIMEOUT_MS = 1000;
+    public static let PICO_STDIO_SHORT_CIRCUIT_CLIB_FUNCS = 1;
+    public __extern_cpp void runtime_init_mutex();
+    public typealias stdio_driver_t = stdio_driver;
+    public __extern_cpp bool stdio_init_all();
+    public __extern_cpp bool stdio_deinit_all();
+    public __extern_cpp void stdio_flush();
+    public __extern_cpp int stdio_getchar_timeout_us(uint timeout_us);
+    public __extern_cpp int getchar_timeout_us(uint timeout_us);
+    public __extern_cpp void stdio_set_driver_enabled(Ptr<stdio_driver_t> driver, bool enabled);
+    public __extern_cpp void stdio_filter_driver(Ptr<stdio_driver_t> driver);
+    public __extern_cpp void stdio_set_translate_crlf(Ptr<stdio_driver_t> driver, bool translate);
+    public __extern_cpp int stdio_putchar_raw(int c);
+    public __extern_cpp int putchar_raw(int c);
+    public __extern_cpp int stdio_puts_raw(Ptr<uint8_t> s);
+    public __extern_cpp int puts_raw(Ptr<uint8_t> s);
+    public __extern_cpp void stdio_set_chars_available_callback(Ptr<void> fn, Ptr<void> param);
+    public __extern_cpp int stdio_get_until(Ptr<uint8_t> buf, int len, uint64_t until);
+    public __extern_cpp int stdio_put_string(Ptr<uint8_t> s, int len, bool newline, bool cr_translation);
+    public __extern_cpp int stdio_getchar();
+    public __extern_cpp int stdio_putchar(int );
+    public __extern_cpp int stdio_puts(Ptr<uint8_t> s);
     public static let PARAM_ASSERTIONS_ENABLED_PICO_CYW43_ARCH = 0;
     public static let PICO_CYW43_ARCH_DEBUG_ENABLED = 0;
     public __extern_cpp int cyw43_arch_init();

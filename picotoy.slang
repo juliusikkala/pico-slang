@@ -18,33 +18,86 @@ struct ComputeVaryingInput
 __extern_cpp void runnerMain_Group(ComputeVaryingInput*, void*, RunnerGlobalParams*);
 
 static const int2 DISPLAY_SIZE = int2(240, 320);
+static const int2 TILE_COUNT = DISPLAY_SIZE / DISPATCH_TILE_SIZE;
+static ST7789 display;
 
-static uint16_t tileBuffer[DISPATCH_TILE_SIZE * DISPATCH_TILE_SIZE];
 static ShadertoyConstants constants = {};
+static int tileID = 0;
+static int finishedWorkers = 0;
+static pico.mutex_t workerMutex = {};
+static pico.mutex_t displayMutex = {};
 
-void renderTileBuffer(int2 tile)
+Optional<int2> acquireTile()
 {
-    ComputeVaryingInput varying;
-    varying.startGroupID = uint3(tile.yx, 0);
-    varying.endGroupID = varying.startGroupID;
+    if (tileID >= TILE_COUNT.x * TILE_COUNT.y)
+        return none;
 
-    RunnerGlobalParams params;
-    params.constants = &constants;
-    params.tileData = Ptr<uint16_t>(&tileBuffer);
-    params.tileDataSize = DISPATCH_TILE_SIZE * DISPATCH_TILE_SIZE;
-
-    runnerMain_Group(&varying, nullptr, &params);
+    pico.mutex_enter_blocking(&workerMutex);
+    int id = tileID++;
+    pico.mutex_exit(&workerMutex);
+    return int2(id % TILE_COUNT.x, id / TILE_COUNT.x);
 }
 
-void renderFrame(inout ST7789 display)
+void renderWorker()
 {
-    int2 tileCount = DISPLAY_SIZE / DISPATCH_TILE_SIZE;
+    uint16_t tileBuffer[DISPATCH_TILE_SIZE * DISPATCH_TILE_SIZE];
 
-    for (int tileX = 0; tileX < tileCount.x; ++tileX)
-    for (int tileY = 0; tileY < tileCount.y; ++tileY)
+    for (;;)
     {
-        renderTileBuffer(int2(tileX, tileY));
-        display.writeTile(tileX * DISPATCH_TILE_SIZE, tileY * DISPATCH_TILE_SIZE, DISPATCH_TILE_SIZE, DISPATCH_TILE_SIZE, Ptr<uint16_t>(&tileBuffer));
+        Optional<int2> tile = acquireTile();
+        if (!tile.hasValue)
+            break;
+
+        ComputeVaryingInput varying;
+        varying.startGroupID = uint3(tile.value.yx, 0);
+        varying.endGroupID = varying.startGroupID;
+
+        RunnerGlobalParams params;
+        params.constants = &constants;
+        params.tileData = Ptr<uint16_t>(&tileBuffer);
+        params.tileDataSize = DISPATCH_TILE_SIZE * DISPATCH_TILE_SIZE;
+
+        runnerMain_Group(&varying, nullptr, &params);
+
+        pico.mutex_enter_blocking(&displayMutex);
+        display.writeTile(
+            tile.value.x * DISPATCH_TILE_SIZE,
+            tile.value.y * DISPATCH_TILE_SIZE,
+            DISPATCH_TILE_SIZE,
+            DISPATCH_TILE_SIZE,
+            Ptr<uint16_t>(&tileBuffer));
+        pico.mutex_exit(&displayMutex);
+    }
+    pico.mutex_enter_blocking(&workerMutex);
+    finishedWorkers++;
+    pico.mutex_exit(&workerMutex);
+}
+
+void* funcPtr<T>(T worker)
+{
+    __intrinsic_asm "ret $0";
+}
+
+void renderFrame()
+{
+    tileID = 0;
+    finishedWorkers = 0;
+    pico.multicore_reset_core1();
+    pico.multicore_launch_core1(funcPtr(renderWorker));
+
+    renderWorker();
+
+    // Stall while workers are running
+    for (;;)
+    {
+        pico.mutex_enter_blocking(&workerMutex);
+        if (finishedWorkers >= 2)
+        {
+            pico.mutex_exit(&workerMutex);
+            break;
+        }
+        pico.mutex_exit(&workerMutex);
+        pico.sleep_us(100);
     }
 }
 
@@ -53,8 +106,11 @@ export __extern_cpp int main()
     pico.stdio_init_all();
     if (pico.cyw43_arch_init() != 0)
         printf("Failed to init Wi-Fi module\n");
+
+    pico.mutex_init(&workerMutex);
+    pico.mutex_init(&displayMutex);
     
-    ST7789 display = ST7789(
+    display = ST7789(
         pico.SPI0, DISPLAY_SIZE.x, DISPLAY_SIZE.y,
         pico.PICO_DEFAULT_SPI_TX_PIN,
         pico.PICO_DEFAULT_SPI_SCK_PIN,
@@ -62,7 +118,6 @@ export __extern_cpp int main()
         21,
         20
     );
-
     display.init();
 
     uint64_t startTime = pico.to_ms_since_boot(pico.get_absolute_time());
@@ -74,7 +129,7 @@ export __extern_cpp int main()
         constants.time = float(pico.to_ms_since_boot(pico.get_absolute_time()) - startTime) * 1e-3;
         constants.frame = i;
 
-        renderFrame(display);
+        renderFrame();
         pico.cyw43_arch_gpio_put(pico.CYW43_WL_GPIO_LED_PIN, bool(i&1));
     }
     return 0;
