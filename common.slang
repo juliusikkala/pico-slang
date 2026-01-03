@@ -1,4 +1,4 @@
-static const int DISPATCH_TILE_SIZE = 8;
+static const int DISPATCH_TILE_SIZE = 16;
 
 struct ShadertoyConstants
 {

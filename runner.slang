@@ -10,6 +10,11 @@ ConstantBuffer<ShadertoyConstants> shadertoyConstants;
 //#include "shaders/seascape_by_tdm.glsl"
 //#include "shaders/protean_clouds_by_nimitz.glsl"
 #include "shaders/a_dead_planet_of_silicon_dreams.glsl"
+//#include "shaders/starry_planes_by_mrange.glsl"
+//#include "shaders/lets_self_reflect_by_mrange.glsl"
+//#include "shaders/auroras_by_nimitz.glsl"
+//#include "shaders/cable_nest_by_mrange.glsl"
+//#include "shaders/synthwave_canyon_by_mrange.glsl"
 
 RWStructuredBuffer<uint16_t> tileData;
 
@@ -41,5 +46,5 @@ void runnerMain(
     float4 color = float4(1);
     mainImage(color, float2(dispatchThreadID.xy));
     float d = dither(groupThreadID.x, groupThreadID.y);
-    tileData[groupThreadID.y + groupThreadID.x * 8] = toRGB565(color.rgb, d);
+    tileData[groupThreadID.y + groupThreadID.x * DISPATCH_TILE_SIZE] = toRGB565(color.rgb, d);
 }
