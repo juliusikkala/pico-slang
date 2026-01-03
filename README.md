@@ -18,9 +18,9 @@ program.
 ## What's special about this?
 
 Slang (in its current form) is a shading language. This means that it's usually
-used to run code on GPUs. The "special" part of this project is running that GPU
-code on something it's absolutely not meant to be run on: an underpowered
-microcontroller, without any operating system or interpreter!
+used to write code to run on GPUs. The "special" part of this project is running
+that GPU code on something it's absolutely not meant to be run on: an
+underpowered microcontroller, without any operating system or interpreter!
 
 `slangc`, the Slang compiler, also supports compiling GLSL and HLSL code; this
 means that in addition to Slang, it is possible to compile GLSL and HLSL into
@@ -38,15 +38,16 @@ PRs [9491](https://github.com/shader-slang/slang/pull/9491),
 ## Build
 
 To test this out, create a new branch from the `master` branch of Slang and
-locally merge the PRs listed above.
+locally merge the PRs listed above. Then, compile it according to instructions
+and place the resulting `slangc` in `PATH`.
 
 This has only been tested on a single setup:
 * Host: OpenSUSE Tumbleweed, x86\_64
 * Microcontroller: Raspberry Pico 2 W
 
 The GCC 15 toolchain is used for pico-sdk, and the Slang compiler is using
-LLVM 21. `slangc` must be in `PATH` and `PICO_SDK_PATH` must be visible for the
-build. Other than that, there shouldn't be anything special.
+LLVM 21. The `PICO_SDK_PATH` environment variable must be defined to point to
+pico-sdk. Other than that, there shouldn't be anything special.
 
 The [`pico.slang`](pico.slang) bindings to pico-sdk have been generated with
 [this binding generator](https://github.com/juliusikkala/slang-cpu-utils/tree/llvm/bindgen-llvm).
