@@ -146,6 +146,7 @@ void renderFrame()
 {
     pico.mutex_enter_blocking(&workerMutex);
     tileID = 0;
+    pendingShaderChange = 0;
     pico.mutex_exit(&workerMutex);
 
     for (;;)
@@ -242,7 +243,6 @@ export __extern_cpp int main()
             shaderIndex %= SHADER_COUNT;
             startTime = pico.to_ms_since_boot(pico.get_absolute_time());
             constants.frame = 0;
-            pendingShaderChange = 0;
         }
     }
     return 0;
