@@ -3,6 +3,7 @@
 #define static extern
 #include <hardware/spi.h>
 #include <hardware/gpio.h>
+#include <hardware/clocks.h>
 #include <pico/time.h>
 #include <pico/multicore.h>
 #include <pico/mutex.h>

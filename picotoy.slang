@@ -34,8 +34,8 @@ static const int RIGHT_BUTTON_PIN = 14;
 static ST7789 display;
 
 static ShadertoyConstants constants = {};
-static int tileID = 0;
-static int finishedWorkers = 0;
+static int tileID = TILE_COUNT.x * TILE_COUNT.y;
+static bool core1Finished = false;
 static pico.mutex_t workerMutex = {};
 static pico.mutex_t displayMutex = {};
 
@@ -61,11 +61,10 @@ bool checkButtons()
 
 Optional<int2> acquireTile()
 {
-    if (tileID >= TILE_COUNT.x * TILE_COUNT.y)
-        return none;
-
     bool fail = false;
     pico.mutex_enter_blocking(&workerMutex);
+    if (tileID >= TILE_COUNT.x * TILE_COUNT.y)
+        fail = true;
     int id = tileID++;
     if (checkButtons())
         fail = true;
@@ -77,47 +76,65 @@ Optional<int2> acquireTile()
     return int2(id / TILE_COUNT.y, id % TILE_COUNT.y);
 }
 
-void renderWorker()
+void setOverclock()
+{
+    // Starting with modest overclock.
+    pico.set_sys_clock_khz(532000, true);
+}
+
+void renderTile(int2 tile)
 {
     uint16_t tileBuffer[DISPATCH_TILE_SIZE * DISPATCH_TILE_SIZE];
+
+    ComputeVaryingInput varying;
+    varying.startGroupID = uint3(tile.yx, 0);
+    varying.endGroupID = varying.startGroupID;
+
+    RunnerGlobalParams params;
+    params.constants = &constants;
+    params.tileData = Ptr<uint16_t>(&tileBuffer);
+    params.tileDataSize = DISPATCH_TILE_SIZE * DISPATCH_TILE_SIZE;
+
+    switch(shaderIndex)
+    {
+    #define X(index) \
+        case index: runner##index##Main_Group(&varying, nullptr, &params); break;
+    SHADER_RUNNERS
+    #undef X
+    default:
+        break;
+    }
+
+    pico.mutex_enter_blocking(&displayMutex);
+    display.writeTile(
+        tile.x * DISPATCH_TILE_SIZE,
+        tile.y * DISPATCH_TILE_SIZE,
+        DISPATCH_TILE_SIZE,
+        DISPATCH_TILE_SIZE,
+        Ptr<uint16_t>(&tileBuffer));
+    pico.mutex_exit(&displayMutex);
+}
+
+void core1Worker()
+{
+#ifdef OVERCLOCK
+    setOverclock();
+#endif
 
     for (;;)
     {
         Optional<int2> tile = acquireTile();
-        if (!tile.hasValue)
-            break;
-
-        ComputeVaryingInput varying;
-        varying.startGroupID = uint3(tile.value.yx, 0);
-        varying.endGroupID = varying.startGroupID;
-
-        RunnerGlobalParams params;
-        params.constants = &constants;
-        params.tileData = Ptr<uint16_t>(&tileBuffer);
-        params.tileDataSize = DISPATCH_TILE_SIZE * DISPATCH_TILE_SIZE;
-
-        switch(shaderIndex)
+        if (tile.hasValue)
         {
-        #define X(index) \
-            case index: runner##index##Main_Group(&varying, nullptr, &params); break;
-        SHADER_RUNNERS
-        #undef X
-        default:
-            break;
+            renderTile(tile.value);
         }
-
-        pico.mutex_enter_blocking(&displayMutex);
-        display.writeTile(
-            tile.value.x * DISPATCH_TILE_SIZE,
-            tile.value.y * DISPATCH_TILE_SIZE,
-            DISPATCH_TILE_SIZE,
-            DISPATCH_TILE_SIZE,
-            Ptr<uint16_t>(&tileBuffer));
-        pico.mutex_exit(&displayMutex);
+        else
+        {
+            pico.mutex_enter_blocking(&workerMutex);
+            core1Finished = true;
+            pico.mutex_exit(&workerMutex);
+        }
     }
-    pico.mutex_enter_blocking(&workerMutex);
-    finishedWorkers++;
-    pico.mutex_exit(&workerMutex);
 }
 
 void* funcPtr<T>(T worker)
@@ -127,32 +144,62 @@ void* funcPtr<T>(T worker)
 
 void renderFrame()
 {
+    pico.mutex_enter_blocking(&workerMutex);
     tileID = 0;
-    finishedWorkers = 0;
-    pico.multicore_reset_core1();
-    pico.multicore_launch_core1(funcPtr(renderWorker));
+    pico.mutex_exit(&workerMutex);
 
-    renderWorker();
+    for (;;)
+    {
+        Optional<int2> tile = acquireTile();
+        if (!tile.hasValue)
+            break;
 
-    // Stall while workers are running
+        renderTile(tile.value);
+    }
+
+    pico.mutex_enter_blocking(&workerMutex);
+    core1Finished = false;
+    pico.mutex_exit(&workerMutex);
+
+    // Stall while worker is running
     for (;;)
     {
         pico.mutex_enter_blocking(&workerMutex);
-        if (finishedWorkers >= 2)
+        if (core1Finished)
         {
             pico.mutex_exit(&workerMutex);
             break;
         }
         pico.mutex_exit(&workerMutex);
-        pico.sleep_us(100);
+        pico.sleep_us(10);
     }
+}
+
+void poke(uint address, uint value)
+{
+    *reinterpret<Ptr<uint>>(address) = value;
+}
+
+void adjustVoltage()
+{
+    // https://gist.github.com/MichaelBell/c413356f4c45bf9aef98cd23ceb83057
+    poke(0x4010001c, 0x5AFE0091);
+    pico.sleep_ms(100);
+    poke(0x400d000c, 0x60007304);
+    poke(0x40100004, 0x5AFEA150);
+
+    pico.vreg_set_voltage(pico.VREG_VOLTAGE_1_60);
+    pico.sleep_ms(100);
 }
 
 export __extern_cpp int main()
 {
+#ifdef OVERCLOCK
+    adjustVoltage();
+    setOverclock();
+#endif
+
     pico.stdio_init_all();
-    if (pico.cyw43_arch_init() != 0)
-        printf("Failed to init Wi-Fi module\n");
 
     pico.mutex_init(&workerMutex);
     pico.mutex_init(&displayMutex);
@@ -174,6 +221,9 @@ export __extern_cpp int main()
     pico.gpio_pull_up(LEFT_BUTTON_PIN);
     pico.gpio_pull_up(RIGHT_BUTTON_PIN);
 
+    pico.multicore_reset_core1();
+    pico.multicore_launch_core1(funcPtr(core1Worker));
+
     uint64_t startTime = pico.to_ms_since_boot(pico.get_absolute_time());
     constants.mouse = float4(0);
     constants.res = float3(DISPLAY_SIZE.yx, 1);
@@ -185,7 +235,6 @@ export __extern_cpp int main()
         constants.frame++;
 
         renderFrame();
-        pico.cyw43_arch_gpio_put(pico.CYW43_WL_GPIO_LED_PIN, bool(i&1));
         
         if (pendingShaderChange != 0)
         {

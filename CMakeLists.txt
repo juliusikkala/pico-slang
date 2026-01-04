@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.13)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+option(OVERCLOCK "Overclock & overvolt the microcontroller to 532 MHz/1.60 V" OFF)
+
 # pico_sdk_import.cmake is a single file copied from this SDK
 # note: this must happen before project()
 include(cmake/pico_sdk_import.cmake)
@@ -38,6 +40,10 @@ set(shader_count ${i})
 
 add_library(picotoy-slang STATIC picotoy.slang st7789.slang)
 target_compile_options(picotoy-slang PRIVATE -DSHADER_COUNT=${shader_count} -DSHADER_RUNNERS=${shader_runners})
+
+if(OVERCLOCK)
+    target_compile_options(picotoy-slang PRIVATE -DOVERCLOCK)
+endif()
 
 add_executable(picotoy export_inline_functions.c)
 
