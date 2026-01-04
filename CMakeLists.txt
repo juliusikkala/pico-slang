@@ -13,7 +13,7 @@ project(PicoSlang LANGUAGES C CXX Slang)
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-file(GLOB shader_sources "${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.glsl")
+file(GLOB shader_sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.glsl")
 
 set(i 0)
 set(shader_binaries)
