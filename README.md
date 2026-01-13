@@ -79,13 +79,13 @@ The program prints some basic performance metrics for each frame.
 
 ## Gallery / Performance
 
-| ![](images/setup.mp4) |
-| --- |
-| The overall setup (pre-overclock) |
-
 Timings are measured using `-DOVERCLOCK` (overclocks the Pico to 532 MHz) and
 both Cortex  M33 cores, using a release build. The performance results are
 averaged over 10 frames and reported in SPF (Seconds Per Frame).
+
+https://github.com/user-attachments/assets/ecebda49-aca9-4d39-bf1b-e4993c85253a
+
+The overall setup (pre-overclock)
 
 | ![](images/a_dead_planet_of_silicon_dreams.jpg) |
 | --- |
@@ -99,9 +99,9 @@ averaged over 10 frames and reported in SPF (Seconds Per Frame).
 | --- |
 | ["Let's self reflect"](https://www.shadertoy.com/view/XfyXRV) by mrange, 2.2 SPF |
 
-| ![](images/starry_planes.mp4) |
-| --- |
-| ["Starry planes"](https://www.shadertoy.com/view/MfjyWK) by mrange, 0.37 SPF (2.7 FPS, whoa!) |
+https://github.com/user-attachments/assets/ca3b1728-9fb4-414f-bee4-9afeffa7a844
+
+["Starry planes"](https://www.shadertoy.com/view/MfjyWK) by mrange, 0.37 SPF (2.7 FPS, whoa!)
 
 | ![](images/synthwave_canyon.jpg) |
 | --- |
