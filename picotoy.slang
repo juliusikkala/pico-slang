@@ -229,13 +229,18 @@ export __extern_cpp int main()
     constants.mouse = float4(0);
     constants.res = float3(DISPLAY_SIZE.yx, 1);
     constants.frame = 0;
+    constants.time = 0;
 
     for (int i = 0;; ++i)
     {
+        float prev_time = constants.time;
         constants.time = float(pico.to_ms_since_boot(pico.get_absolute_time()) - startTime) * 1e-3;
-        constants.frame++;
+
+        printf("Frame %d: %f s (avg: %f s)\n", constants.frame, constants.time - prev_time, constants.time / float(constants.frame));
 
         renderFrame();
+
+        constants.frame++;
         
         if (pendingShaderChange != 0)
         {

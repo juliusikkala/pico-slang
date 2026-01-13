@@ -3,7 +3,7 @@ Slang on Raspberry Pico 2 W
 
 This is a proof-of-concept of compiling and running [Slang](https://github.com/shader-slang/slang)
 and GLSL code on a microcontroller. It is able to run Shadertoy shaders on the
-microcontroller! Although, performance is measured in minutes per frame.
+microcontroller! Although, performance is measured in seconds per frame.
 
 | ![photo of a small LCD showing an alien landscape](images/a_dead_planet_of_silicon_dreams.jpg) |
 | --- |
@@ -30,16 +30,15 @@ This is not a simple transpiler hack - the Slang/GLSL code is never compiled
 into C or C++ or any other high-level language. Instead, the new LLVM emitter
 of `slangc` is used to directly emit object code for the microcontroller.
 
-As of writing, this doesn't yet work on the upstream Slang compiler; it requires
-PRs [9491](https://github.com/shader-slang/slang/pull/9491),
-[9492](https://github.com/shader-slang/slang/pull/9492), and
-[9493](https://github.com/shader-slang/slang/pull/9493).
+Several, now merged PRs to Slang were necessary to make this work:
+[9491](https://github.com/shader-slang/slang/pull/9491),
+[9492](https://github.com/shader-slang/slang/pull/9492),
+[9493](https://github.com/shader-slang/slang/pull/9493), and
+[9501](https://github.com/shader-slang/slang/pull/9501).
 
 ## Build
 
-To test this out, create a new branch from the `master` branch of Slang and
-locally merge the PRs listed above. Then, compile it according to instructions
-and place the resulting `slangc` in `PATH`.
+To test this out, use the v2026.1 release of Slang and place `slangc` in `PATH`.
 
 This has only been tested on a single setup:
 * Host: OpenSUSE Tumbleweed, x86\_64
@@ -54,6 +53,19 @@ The [`pico.slang`](pico.slang) bindings to pico-sdk have been generated with
 It has been generated using flags that are specifically correct for the
 Pico 2 W, so this project only works on that device currently.
 
+With all this in place, you should be able to just:
+```
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release [-DOVERCLOCK]
+cmake --build build
+cp build/picotoy.uf2 /run/media/username/RP2350
+```
+
+If you connect the USB to your Linux PC, you can observe the `printf`s with:
+```
+screen /dev/ttyACM0 115200
+```
+The program prints some basic performance metrics for each frame.
+
 ## Hardware
 
 * Raspberry Pi Pico 2 W
@@ -64,3 +76,33 @@ Pico 2 W, so this project only works on that device currently.
 * Two push buttons to cycle between shaders
     - They connect GPIO 14 & 15 to ground when connected
     - Internal pull-up resistors are used, you don't need external resistors
+
+## Gallery / Performance
+
+| ![](images/setup.mp4) |
+| --- |
+| The overall setup (pre-overclock) |
+
+Timings are measured using `-DOVERCLOCK` (overclocks the Pico to 532 MHz) and
+both Cortex  M33 cores, using a release build. The performance results are
+averaged over 10 frames and reported in SPF (Seconds Per Frame).
+
+| ![](images/a_dead_planet_of_silicon_dreams.jpg) |
+| --- |
+| ["A Dead Planet of Silicon Dreams"](https://www.shadertoy.com/view/WfGfzK) by mrange, 11.1 SPF |
+
+| ![](images/cable_nest.jpg) |
+| --- |
+| ["Cable nest v2"](https://www.shadertoy.com/view/7ttcDj) by mrange, 4.8 SPF |
+
+| ![](images/lets_self_reflect.jpg) |
+| --- |
+| ["Let's self reflect"](https://www.shadertoy.com/view/XfyXRV) by mrange, 2.2 SPF |
+
+| ![](images/starry_planes.mp4) |
+| --- |
+| ["Starry planes"](https://www.shadertoy.com/view/MfjyWK) by mrange, 0.37 SPF (2.7 FPS, whoa!) |
+
+| ![](images/synthwave_canyon.jpg) |
+| --- |
+| ["Synthwave canyon"](https://www.shadertoy.com/view/slcXW8) by mrange, 2.2 SPF |
